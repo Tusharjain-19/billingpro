@@ -2,7 +2,7 @@
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, Product } from '@/lib/db';
-import { Plus, Search, Package, Barcode, Trash2, X, AlertCircle, ChevronRight, Camera, IndianRupee, Upload, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, Package, Trash2, X, ChevronRight, Camera, Upload, Edit3 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
@@ -12,9 +12,10 @@ import { BarcodeScanner } from '@/components/BarcodeScanner';
 export default function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [isAddingScanning, setIsAddingScanning] = useState(false);
-  const [newProduct, setNewProduct] = useState<Partial<Product>>({ 
+  const [isDrawerScanning, setIsDrawerScanning] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<Partial<Product>>({ 
     name: '', sku: '', price: 0, stock: 0, category: 'General',
     gstRate: 18, isGstIncluded: true 
   });
@@ -28,11 +29,34 @@ export default function InventoryPage() {
     [searchTerm]
   );
 
-  const addProduct = async () => {
-    if (!newProduct.name || !newProduct.price) return;
-    await db.products.add(newProduct as Product);
+  const handleSave = async () => {
+    if (!activeProduct.name || !activeProduct.price) return;
+    
+    if (isEditing && activeProduct.id) {
+      await db.products.update(activeProduct.id, activeProduct);
+    } else {
+      await db.products.add(activeProduct as Product);
+    }
+    
+    closeDrawer();
+  };
+
+  const openAdd = () => {
+    setActiveProduct({ name: '', sku: '', price: 0, stock: 0, category: 'General', gstRate: 18, isGstIncluded: true });
+    setIsAdding(true);
+    setIsEditing(false);
+  };
+
+  const openEdit = (p: Product) => {
+    setActiveProduct(p);
+    setIsAdding(true);
+    setIsEditing(true);
+  };
+
+  const closeDrawer = () => {
     setIsAdding(false);
-    setNewProduct({ name: '', sku: '', price: 0, stock: 0, category: 'General', gstRate: 18, isGstIncluded: true });
+    setIsEditing(false);
+    setActiveProduct({ name: '', sku: '', price: 0, stock: 0, category: 'General', gstRate: 18, isGstIncluded: true });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +94,7 @@ export default function InventoryPage() {
 
   return (
     <div className="fade-in">
-      {/* Native Search Component */}
+      {/* Search Header */}
       <section style={{ padding: "0 20px 24px" }}>
         <div style={{ position: "relative", marginBottom: 12 }}>
             <Search size={18} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--app-fg-muted)" }} />
@@ -84,28 +108,34 @@ export default function InventoryPage() {
             <motion.button 
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsScanning(true)}
-              style={{ position: "absolute", right: 8, top: 7, height: 40, width: 40, borderRadius: 12, border: "none", background: "var(--app-surface)", color: "var(--app-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ position: "absolute", right: 8, top: 8, height: 40, width: 40, borderRadius: 12, border: "none", background: "var(--app-bg)", color: "var(--app-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
                 <Camera size={20} />
             </motion.button>
         </div>
         <div style={{ display: "flex", gap: 12 }}>
             <input type="file" ref={fileInputRef} style={{ display: "none" }} accept=".xlsx, .xls, .csv" onChange={handleFileUpload} />
-            <button onClick={() => fileInputRef.current?.click()} className="app-btn-primary" style={{ flex: 1, height: 48, background: "var(--app-surface)", color: "var(--app-primary)", border: "1px solid var(--app-border)" }}>
+            <button onClick={() => fileInputRef.current?.click()} className="app-btn-primary" style={{ flex: 1, height: 48, background: "var(--app-surface-raised)", color: "var(--app-fg)", border: "1px solid var(--app-border)" }}>
                 <Upload size={18} /> Import
             </button>
-            <button onClick={() => setIsAdding(true)} className="app-btn-primary" style={{ flex: 1, height: 48 }}>
+            <button onClick={openAdd} className="app-btn-primary" style={{ flex: 1, height: 48 }}>
                 <Plus size={18} strokeWidth={3} /> Add New
             </button>
         </div>
       </section>
 
-      {/* Product List Cards */}
+      {/* Product List */}
       <section style={{ padding: "0 4px" }}>
-        {products?.map((p: Product, idx: number) => (
-          <div key={p.id} className="app-card" style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {products?.map((p: Product) => (
+          <motion.div 
+            key={p.id} 
+            whileTap={{ scale: 0.98 }}
+            onClick={() => openEdit(p)}
+            className="glass app-card" 
+            style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
+          >
             <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--app-primary-soft)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-primary)" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--app-primary-glow)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-primary)" }}>
                     <Package size={20} />
                 </div>
                 <div>
@@ -116,27 +146,26 @@ export default function InventoryPage() {
             <div style={{ textAlign: "right" }}>
                 <p className="font-space" style={{ fontSize: 18, fontWeight: 800, color: "var(--app-primary)" }}>₹{p.price.toFixed(0)}</p>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 4 }}>
-                   <button onClick={() => p.id && db.products.delete(p.id)} style={{ color: "var(--app-fg-muted)", border: "none", background: "none" }}><Trash2 size={16} /></button>
                    <ChevronRight size={16} color="var(--app-border)" />
                 </div>
             </div>
-          </div>
+          </motion.div>
         ))}
         {products?.length === 0 && (
           <div style={{ padding: 60, textAlign: "center", opacity: 0.3 }}>
              <Package size={48} style={{ margin: "0 auto 16px" }} />
-             <p style={{ fontWeight: 800, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.1em" }}>Stock registry is empty</p>
+             <p style={{ fontWeight: 800, fontSize: 12, textTransform: "uppercase" }}>Registry is empty</p>
           </div>
         )}
       </section>
 
-      {/* Add Item Bottom Drawer */}
+      {/* Add/Edit Drawer */}
       <AnimatePresence>
         {isAdding && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)" }}
-            onClick={() => setIsAdding(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
+            onClick={closeDrawer}
           >
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
@@ -145,52 +174,59 @@ export default function InventoryPage() {
               onClick={e => e.stopPropagation()}
             >
                 <div style={{ width: 40, height: 4, background: "var(--app-border)", borderRadius: 10, margin: "0 auto 20px" }} />
-                <h2 className="font-space" style={{ fontSize: 24, fontWeight: 900, marginBottom: 24 }}>Add Stock Item</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                    <h2 className="font-space" style={{ fontSize: 24, fontWeight: 800 }}>{isEditing ? 'Edit Stock' : 'Add Stock'}</h2>
+                    {isEditing && (
+                      <button onClick={() => activeProduct.id && db.products.delete(activeProduct.id).then(closeDrawer)} style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "none", padding: "8px 12px", borderRadius: 12, fontSize: 11, fontWeight: 800 }}>
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                </div>
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    <div className="app-input-group">
+                    <div>
                         <label style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase", marginBottom: 8, display: "block" }}>ITEM DESCRIPTION</label>
-                        <input className="app-input" placeholder="e.g. Engine Oil 1L" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} />
+                        <input className="app-input" value={activeProduct.name} onChange={e => setActiveProduct({...activeProduct, name: e.target.value})} />
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                         <div>
                             <label style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase", marginBottom: 8, display: "block" }}>PRICE (₹)</label>
-                            <input className="app-input" type="number" placeholder="0" value={newProduct.price || ''} onChange={e => setNewProduct({...newProduct, price: parseFloat(e.target.value)})} />
+                            <input className="app-input" type="number" value={activeProduct.price || ''} onChange={e => setActiveProduct({...activeProduct, price: parseFloat(e.target.value)})} />
                         </div>
                         <div>
                             <label style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase", marginBottom: 8, display: "block" }}>STOCK QTY</label>
-                            <input className="app-input" type="number" placeholder="0" value={newProduct.stock || ''} onChange={e => setNewProduct({...newProduct, stock: parseInt(e.target.value)})} />
+                            <input className="app-input" type="number" value={activeProduct.stock || ''} onChange={e => setActiveProduct({...activeProduct, stock: parseInt(e.target.value)})} />
                         </div>
                     </div>
                     <div>
                         <label style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase", marginBottom: 8, display: "block" }}>BARCODE / SKU</label>
                         <div style={{ display: "flex", gap: 12 }}>
-                            <input className="app-input" placeholder="Scan or Enter Manual" value={newProduct.sku} onChange={e => setNewProduct({...newProduct, sku: e.target.value})} />
-                            <button onClick={() => setIsAddingScanning(true)} style={{ width: 54, height: 54, borderRadius: 16, background: "var(--app-surface)", color: "var(--app-primary)", border: "1px solid var(--app-border)" }}>
+                            <input className="app-input" value={activeProduct.sku} onChange={e => setActiveProduct({...activeProduct, sku: e.target.value})} />
+                            <button onClick={() => setIsDrawerScanning(true)} style={{ width: 54, height: 54, borderRadius: 18, background: "var(--app-bg)", color: "var(--app-primary)", border: "1px solid var(--app-border)" }}>
                                 <Camera size={22} />
                             </button>
                         </div>
                     </div>
 
-                    <div style={{ background: "var(--app-surface)", padding: 16, borderRadius: 20 }}>
+                    <div className="glass" style={{ padding: 16, borderRadius: 20 }}>
                          <label style={{ fontSize: 10, fontWeight: 800, color: "var(--app-primary)", textTransform: "uppercase", marginBottom: 12, display: "block" }}>GST SETTINGS</label>
                          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                             {[0, 5, 12, 18, 28].map(r => (
-                                <button key={r} onClick={() => setNewProduct({...newProduct, gstRate: r as any})} style={{ flex: 1, height: 40, borderRadius: 10, background: newProduct.gstRate === r ? 'var(--app-primary)' : 'var(--app-surface-raised)', color: newProduct.gstRate === r ? '#fff' : 'var(--app-fg)', fontWeight: 800, border: "none" }}>{r}%</button>
+                                <button key={r} onClick={() => setActiveProduct({...activeProduct, gstRate: r as any})} style={{ flex: 1, height: 40, borderRadius: 10, background: activeProduct.gstRate === r ? 'var(--app-primary)' : 'var(--app-bg)', color: activeProduct.gstRate === r ? '#fff' : 'var(--app-fg)', fontWeight: 800, border: "none" }}>{r}%</button>
                             ))}
                          </div>
                          <button 
-                            onClick={() => setNewProduct({...newProduct, isGstIncluded: !newProduct.isGstIncluded})}
-                            style={{ width: "100%", height: 44, borderRadius: 12, border: "1px solid var(--app-border)", background: "none", color: "var(--app-fg)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}
+                            onClick={() => setActiveProduct({...activeProduct, isGstIncluded: !activeProduct.isGstIncluded})}
+                            style={{ width: "100%", height: 48, borderRadius: 14, border: "1px solid var(--app-border)", background: "none", color: "var(--app-fg)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}
                          >
                             <span style={{ fontSize: 11, fontWeight: 700 }}>Exclusive GST Price?</span>
-                            <div style={{ width: 44, height: 24, borderRadius: 20, background: !newProduct.isGstIncluded ? 'var(--app-primary)' : 'var(--app-surface-raised)', position: "relative" }}>
-                                <div style={{ position: "absolute", width: 18, height: 18, background: "#fff", borderRadius: "50%", top: 3, left: !newProduct.isGstIncluded ? 23 : 3, transition: "0.2s" }} />
+                            <div style={{ width: 44, height: 24, borderRadius: 20, background: !activeProduct.isGstIncluded ? 'var(--app-primary)' : 'var(--app-surface-raised)', position: "relative" }}>
+                                <div style={{ position: "absolute", width: 18, height: 18, background: "#fff", borderRadius: "50%", top: 3, left: !activeProduct.isGstIncluded ? 23 : 3, transition: "0.2s" }} />
                             </div>
                          </button>
                     </div>
 
-                    <button onClick={addProduct} className="app-btn-primary" style={{ marginTop: 24 }}>SAVE TO STOCK</button>
+                    <button onClick={handleSave} className="app-btn-primary" style={{ marginTop: 24 }}>{isEditing ? 'SYNC UPDATES' : 'SAVE TO STOCK'}</button>
                 </div>
             </motion.div>
           </motion.div>
@@ -199,7 +235,7 @@ export default function InventoryPage() {
 
       {/* Scanners */}
       {isScanning && <BarcodeScanner onScan={(sku) => { setSearchTerm(sku); setIsScanning(false); }} onClose={() => setIsScanning(false)} />}
-      {isAddingScanning && <BarcodeScanner onScan={(sku) => { setNewProduct({ ...newProduct, sku }); setIsAddingScanning(false); }} onClose={() => setIsAddingScanning(false)} />}
+      {isDrawerScanning && <BarcodeScanner onScan={(sku) => { setActiveProduct({ ...activeProduct, sku }); setIsDrawerScanning(false); }} onClose={() => setIsDrawerScanning(false)} />}
     </div>
   );
 }
