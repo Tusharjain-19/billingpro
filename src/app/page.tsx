@@ -45,11 +45,16 @@ export default function Home() {
 
   const initializeTerminal = async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ video: true });
+      // Try to get camera permission, but don't block if it fails
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+      }
+    } catch (e) {
+      console.warn("Camera access not available. Scanner features may be limited.");
+    } finally {
+      // Always allow the user to proceed to the app
       localStorage.setItem('terminal_init', 'true');
       setPermissionGranted(true);
-    } catch (e) {
-      alert("Hardware initialization failed. Scanner requires camera access.");
     }
   };
 
@@ -178,7 +183,7 @@ export default function Home() {
               </div>
             )}
         </div>
-      </section> section 
+      </section>
     </div>
   );
 }
