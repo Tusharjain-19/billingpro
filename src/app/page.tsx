@@ -1,20 +1,23 @@
 'use client';
 
 import { motion } from "framer-motion";
-import { Plus, ShoppingBag, Users, ArrowUpRight, Target, Zap, ShieldCheck, PieChart, Activity, ShoppingCart, LayoutGrid, IndianRupee, Store, Package, History, BarChart3 } from "lucide-react";
+import { 
+  Plus, 
+  ArrowUpRight, 
+  ShieldCheck, 
+  Zap, 
+  IndianRupee, 
+  Package, 
+  History, 
+  BarChart3,
+  TrendingUp,
+  Receipt,
+  LayoutGrid
+} from "lucide-react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { useMemo, useState, useEffect } from "react";
-
-const S = {
-  page:    { padding: "40px var(--page-pad)", paddingBottom: "140px" } as React.CSSProperties,
-  header:  { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" } as React.CSSProperties,
-  avatar:  { width: 44, height: 44, borderRadius: 14, background: "var(--surface-raised)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" } as React.CSSProperties,
-  section: { marginBottom: 32 } as React.CSSProperties,
-  label:   { fontSize: 10, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: "0.2em", color: "var(--primary)", marginBottom: 16, paddingLeft: 4, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
-  card:    { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", marginBottom: 16, cursor: "pointer" } as React.CSSProperties,
-};
 
 export default function Home() {
   const [permissionGranted, setPermissionGranted] = useState(false);
@@ -52,20 +55,16 @@ export default function Home() {
 
   if (!permissionGranted) {
     return (
-      <div style={{ height: "100vh", padding: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass" style={{ padding: 40, borderRadius: 40, maxWidth: 360, border: "2px solid var(--border)" }}>
-          <div style={{ width: 64, height: 64, borderRadius: 20, background: "rgba(var(--primary-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "var(--primary)" }}>
+      <div style={{ height: "100%", padding: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="app-card" style={{ maxWidth: 320, padding: 32 }}>
+          <div style={{ width: 64, height: 64, borderRadius: 24, background: "var(--app-primary-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "var(--app-primary)" }}>
             <ShieldCheck size={32} strokeWidth={2.5} />
           </div>
-          <h2 className="font-space" style={{ fontSize: 24, fontWeight: 900, marginBottom: 8 }}>Indian Store Entry</h2>
-          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 32, fontWeight: 500 }}>
-            Configure your local vault and printer to enable secure Indian GST billing.
+          <h2 className="font-space" style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>Secure Vault</h2>
+          <p style={{ fontSize: 13, color: "var(--app-fg-muted)", lineHeight: 1.6, marginBottom: 32 }}>
+            Enable hardware access to start generating GST compliant bills for your store.
           </p>
-          <button 
-            onClick={initializeTerminal}
-            className="shimmer-btn"
-            style={{ width: "100%", height: 68, borderRadius: 20, color: "#fff", border: "none", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", cursor: "pointer" }}
-          >
+          <button onClick={initializeTerminal} className="app-btn-primary">
             Start Billing Engine
           </button>
         </motion.div>
@@ -74,136 +73,112 @@ export default function Home() {
   }
 
   return (
-    <div style={S.page}>
-      <header style={S.header}>
-        <div>
-          <h1 className="font-space" style={{ fontSize: 28, fontWeight: 900, letterSpacing: -1 }}>{settings?.storeName || 'Main Counter'}</h1>
-          <div style={{ fontSize: 10, color: "#10b981", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 10px #10b981" }} /> System Nominal
-          </div>
-        </div>
-        <div style={S.avatar}>
-          <Store size={20} />
-        </div>
-      </header>
-
-      {/* Gross Revenue Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          position: "relative", minHeight: 180, borderRadius: 32, overflow: "hidden", padding: "28px", marginBottom: 32,
-          background: "linear-gradient(135deg, #1e1b4b 0%, var(--primary) 100%)",
-          display: "flex", flexDirection: "column", justifyContent: "space-between",
-          boxShadow: "0 20px 50px rgba(var(--primary-rgb), 0.3)"
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 8 }}>Daily Sale Collection</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span className="font-space" style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: -1.5 }}>₹{todayRevenue.toLocaleString()}</span>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 800, fontSize: 16 }}>.00</span>
-            </div>
-          </div>
-          <div style={{ background: "rgba(255,184,0,0.2)", border: "1.5px solid rgba(255,184,0,0.3)", color: "#ffb800", padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 900, display: "flex", alignItems: "center", gap: 6 }}>
-            <ArrowUpRight size={12} strokeWidth={3} /> {progress.toFixed(1)}%
-          </div>
-        </div>
-
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 9, fontWeight: 900, textTransform: "uppercase" }}>Goal: ₹{target.toLocaleString()}</span>
-            <span style={{ color: "#fff", fontWeight: 900, fontSize: 12 }}>{progress.toFixed(0)}%</span>
-          </div>
-          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, overflow: "hidden" }}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ delay: 0.5, duration: 1.5 }}
-              style={{ height: "100%", background: "#ffb800", borderRadius: 100, boxShadow: "0 0 15px rgba(255,184,0,0.4)" }}
-            />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Simplified Snapshots */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
-        <div className="glass" style={{ padding: "20px", position: "relative" }}>
-          <Package size={16} style={{ color: "var(--primary)", position: "absolute", right: 16, top: 16 }} />
-          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Total Items</p>
-          <p className="font-space" style={{ fontSize: 26, fontWeight: 900 }}>{productCount || 0}</p>
-        </div>
-        <div className="glass" style={{ padding: "20px", position: "relative" }}>
-          <History size={16} style={{ color: "#ffb800", position: "absolute", right: 16, top: 16 }} />
-          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Total Bills</p>
-          <p className="font-space" style={{ fontSize: 26, fontWeight: 900 }}>{sales?.length || 0}</p>
-        </div>
-      </div>
-
-      {/* Indian Hub Tools */}
-      <div style={S.section}>
-        <p style={S.label}>
-          <Zap size={10} fill="currentColor" /> MARKET TOOLS
-        </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-          <Link href="/billing" style={{ textDecoration: "none", color: "inherit" }}>
-            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(var(--primary-rgb), 0.1)", border: "1.5px solid rgba(var(--primary-rgb), 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <IndianRupee size={20} />
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Bill</span>
-            </motion.div>
-          </Link>
-          <Link href="/inventory" style={{ textDecoration: "none", color: "inherit" }}>
-            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,184,0,0.1)", border: "1.5px solid rgba(255,184,0,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffb800" }}>
-                <Package size={20} />
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Stock</span>
-            </motion.div>
-          </Link>
-          <Link href="/reports" style={{ textDecoration: "none", color: "inherit" }}>
-            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}>
-                <BarChart3 size={20} />
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Reports</span>
-            </motion.div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Sale History List */}
-      <div style={S.section}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, padding: "0 4px" }}>
-          <p style={S.label}>RECENT BILLS</p>
-          <span style={{ fontSize: 8, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase" }}>LATEST ENTRIES</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {sales && sales.slice(0, 5).map((s, i) => (
-            <motion.div key={s.id} whileHover={{ x: 4 }} className="glass" style={{ ...S.card, marginBottom: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--input-bg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900 }}>
-                        {i + 1}
-                    </div>
-                    <div>
-                        <p style={{ fontWeight: 800, fontSize: 15 }}>Bill Settle</p>
-                        <p style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700 }}>
-                            {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {s.items.length} Items
-                        </p>
-                    </div>
+    <div className="fade-in" style={{ padding: "0 0 40px" }}>
+      {/* Native Snapshot Header Component */}
+      <section style={{ padding: "0 24px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+                <p style={{ fontSize: 10, fontWeight: 800, color: "var(--app-primary)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Current Session</p>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                    <span className="font-space" style={{ fontSize: 44, fontWeight: 900, letterSpacing: -1 }}>₹{todayRevenue.toLocaleString()}</span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: "var(--app-fg-muted)" }}>.00</span>
                 </div>
-                <p className="font-space" style={{ fontWeight: 900, fontSize: 17, color: "var(--primary)" }}>₹{s.total.toLocaleString()}</p>
-            </motion.div>
+            </div>
+            <div style={{ background: "rgba(16,185,129,0.1)", color: "#10b981", padding: "6px 12px", borderRadius: 12, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", gap: 4 }}>
+                <TrendingUp size={14} /> +{progress.toFixed(1)}%
+            </div>
+        </div>
+      </section>
+
+      {/* Target Progress Card */}
+      <div className="app-card" style={{ background: "var(--app-primary)", color: "#fff", border: "none" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" }}>Bill Goal: ₹{target.toLocaleString()}</span>
+            <span style={{ fontSize: 12, fontWeight: 900 }}>{progress.toFixed(0)}%</span>
+        </div>
+        <div style={{ height: 6, background: "rgba(255,255,255,0.2)", borderRadius: 10, overflow: "hidden" }}>
+            <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1 }} style={{ height: "100%", background: "#fff", borderRadius: 10 }} />
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, padding: "0 4px" }}>
+        <div className="glass app-card" style={{ margin: "8px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ color: "var(--app-primary)" }}><Package size={18} /></div>
+                <span style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase" }}>Stock</span>
+            </div>
+            <p className="font-space" style={{ fontSize: 24, fontWeight: 800 }}>{productCount || 0}</p>
+        </div>
+        <div className="glass app-card" style={{ margin: "8px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ color: "#f59e0b" }}><History size={18} /></div>
+                <span style={{ fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)", textTransform: "uppercase" }}>Bills</span>
+            </div>
+            <p className="font-space" style={{ fontSize: 24, fontWeight: 800 }}>{sales?.length || 0}</p>
+        </div>
+      </div>
+
+      {/* Quick Launch Tools */}
+      <section style={{ marginTop: 24 }}>
+        <p style={{ margin: "0 24px 16px", fontSize: 10, fontWeight: 800, color: "var(--app-primary)", letterSpacing: "0.15em" }}>MARKET TOOLS</p>
+        <div style={{ padding: "0 24px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <Link href="/billing" style={{ textDecoration: 'none' }}>
+                <motion.div whileTap={{ scale: 0.95 }} className="glass" style={{ borderRadius: 22, padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: "var(--app-primary-glow)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-primary)" }}>
+                        <Receipt size={20} />
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.1em" }}>QUICK BILL</span>
+                </motion.div>
+            </Link>
+            <Link href="/inventory" style={{ textDecoration: 'none' }}>
+                <motion.div whileTap={{ scale: 0.95 }} className="glass" style={{ borderRadius: 22, padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(245,158,11,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#f59e0b" }}>
+                        <Package size={20} />
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.1em" }}>STOCK ROOM</span>
+                </motion.div>
+            </Link>
+            <Link href="/reports" style={{ textDecoration: 'none' }}>
+                <motion.div whileTap={{ scale: 0.95 }} className="glass" style={{ borderRadius: 22, padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}>
+                        <BarChart3 size={20} />
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.1em" }}>ANALYTICS</span>
+                </motion.div>
+            </Link>
+        </div>
+      </section>
+
+      {/* Recent History Feed */}
+      <section style={{ marginTop: 32 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "0 24px 16px" }}>
+            <p style={{ fontSize: 10, fontWeight: 800, color: "var(--app-primary)", letterSpacing: "0.15em" }}>RECENT TRANSACTIONS</p>
+            <Link href="/reports" style={{ textDecoration: 'none', fontSize: 10, fontWeight: 800, color: "var(--app-fg-muted)" }}>SEE ALL</Link>
+        </div>
+        <div style={{ padding: "0 8px" }}>
+            {sales && sales.slice(0, 5).map((s, i) => (
+                <div key={s.id} className="glass app-card" style={{ padding: "16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--app-primary-glow)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-primary)" }}>
+                            <IndianRupee size={18} />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: 13, fontWeight: 700 }}>#{s.id?.toString().slice(-4)} BILL SETTLE</p>
+                            <p style={{ fontSize: 10, color: "var(--app-fg-muted)", fontWeight: 500 }}>{new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                    </div>
+                    <p className="font-space" style={{ fontSize: 18, fontWeight: 800, color: "var(--app-primary)" }}>₹{s.total.toFixed(0)}</p>
+                </div>
             ))}
             {(!sales || sales.length === 0) && (
-              <div style={{ padding: 40, textAlign: "center", border: "2px dashed var(--border)", borderRadius: 28, opacity: 0.2 }}>
-                <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>No Sale Today</p>
+              <div style={{ padding: 40, textAlign: "center", opacity: 0.3 }}>
+                <History size={32} style={{ margin: "0 auto 12px" }} />
+                <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>Capture your first bill today</p>
               </div>
             )}
         </div>
-      </div>
+      </section> section 
     </div>
   );
 }

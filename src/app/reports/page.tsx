@@ -2,7 +2,7 @@
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, Sale } from '@/lib/db';
-import { Download, Calendar, ArrowLeft, BarChart3, TrendingUp, Filter, FileSpreadsheet, ChevronRight, IndianRupee } from 'lucide-react';
+import { Download, Calendar, ArrowLeft, BarChart3, TrendingUp, Filter, FileSpreadsheet, ChevronRight, IndianRupee, PieChart, Activity } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
@@ -91,115 +91,108 @@ export default function ReportsPage() {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
   return (
-    <div style={{ padding: "40px var(--page-pad) 140px" }}>
-      <header style={{ marginBottom: 40, position: "relative" }}>
-        <Link href="/" style={{ position: "absolute", left: 0, top: -20, color: "var(--muted)", textDecoration: "none", fontSize: 10, fontWeight: 900, display: "flex", alignItems: "center", gap: 6, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-          <ArrowLeft size={14} /> Back
-        </Link>
-        <div style={{ marginTop: 20 }}>
-          <div style={{ fontSize: 10, color: "var(--primary)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.4em", display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <BarChart3 size={12} /> Financial Analytics
-          </div>
-          <h1 className="font-space" style={{ fontSize: 32, fontWeight: 900, letterSpacing: -1 }}>Reports</h1>
-        </div>
-      </header>
-
-      {/* Period Selector */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+    <div className="fade-in">
+      {/* Segmented Controller (iOS Native Style) */}
+      <section style={{ padding: "0 24px 24px" }}>
+        <div style={{ background: "var(--app-surface-raised)", padding: 4, borderRadius: 14, display: "flex", gap: 4 }}>
             {['monthly', 'yearly'].map(t => (
                 <button 
-                    key={t}
-                    onClick={() => setViewType(t as any)}
-                    style={{
-                        padding: "10px 20px", borderRadius: 100, fontSize: 11, fontWeight: 900, textTransform: "uppercase",
-                        background: viewType === t ? "var(--primary)" : "var(--surface-raised)",
-                        color: viewType === t ? "#fff" : "var(--fg)",
-                        border: "1px solid var(--border)",
-                        transition: "all 0.3s"
-                    }}
+                  key={t}
+                  onClick={() => setViewType(t as any)}
+                  style={{ flex: 1, height: 36, borderRadius: 10, border: "none", fontSize: 13, fontWeight: 700, background: viewType === t ? "var(--app-surface)" : "none", color: viewType === t ? "var(--app-primary)" : "var(--app-fg-muted)", transition: "0.2s" }}
                 >
-                    {t}
+                    {t.toUpperCase()}
                 </button>
             ))}
         </div>
+      </section>
 
-        <div className="glass" style={{ padding: 24, display: "flex", gap: 16 }}>
-             {viewType === 'monthly' && (
+      {/* Date Pickers Card */}
+      <div className="app-card" style={{ display: "flex", gap: 12, padding: "12px 16px" }}>
+            <div style={{ flex: 1, position: "relative" }}>
                  <select 
                     value={selectedMonth} 
                     onChange={e => setSelectedMonth(parseInt(e.target.value))}
-                    className="input-modern"
-                    style={{ height: 48, padding: "0 16px", flex: 1 }}
+                    className="app-input"
+                    style={{ height: 44, fontSize: 13, paddingRight: 32, opacity: viewType === 'yearly' ? 0.3 : 1 }}
+                    disabled={viewType === 'yearly'}
                  >
                      {months.map((m, i) => <option key={m} value={i}>{m}</option>)}
                  </select>
-             )}
-             <select 
-                value={selectedYear} 
-                onChange={e => setSelectedYear(parseInt(e.target.value))}
-                className="input-modern"
-                style={{ height: 48, padding: "0 16px", flex: 1 }}
-             >
-                 {years.map(y => <option key={y} value={y}>{y}</option>)}
-             </select>
-        </div>
+            </div>
+            <div style={{ flex: 1, position: "relative" }}>
+                 <select 
+                    value={selectedYear} 
+                    onChange={e => setSelectedYear(parseInt(e.target.value))}
+                    className="app-input"
+                    style={{ height: 44, fontSize: 13, paddingRight: 32 }}
+                 >
+                     {years.map(y => <option key={y} value={y}>{y}</option>)}
+                 </select>
+            </div>
       </div>
 
-      {/* Summary Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
-        <div className="glass" style={{ padding: "20px" }}>
-          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Collection</p>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-             <span style={{ fontSize: 18, fontWeight: 800, color: "var(--muted)" }}>₹</span>
-             <span className="font-space" style={{ fontSize: 28, fontWeight: 900 }}>{stats.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-          </div>
+      {/* Analytics Snapshot */}
+      <section style={{ marginTop: 24, padding: "0 8px" }}>
+        <div className="app-card" style={{ padding: 24, background: "var(--app-primary)", color: "#fff", border: "none" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+                <div>
+                    <p style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" }}>TOTAL GROSS COLLECTION</p>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                        <span className="font-space" style={{ fontSize: 36, fontWeight: 900 }}>₹{stats.totalRevenue.toLocaleString()}</span>
+                        <span style={{ fontSize: 16, fontWeight: 800, opacity: 0.6 }}>.00</span>
+                    </div>
+                </div>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <BarChart3 size={20} />
+                </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                <div>
+                    <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" }}>BILL COUNT</p>
+                    <p className="font-space" style={{ fontSize: 20, fontWeight: 800 }}>{stats.totalBills}</p>
+                </div>
+                <div>
+                    <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" }}>GST ESTIMATE</p>
+                    <p className="font-space" style={{ fontSize: 20, fontWeight: 800 }}>₹{stats.totalGst.toFixed(0)}</p>
+                </div>
+            </div>
         </div>
-        <div className="glass" style={{ padding: "20px" }}>
-          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Total Bills</p>
-          <span className="font-space" style={{ fontSize: 28, fontWeight: 900 }}>{stats.totalBills}</span>
-        </div>
-        <div className="glass" style={{ padding: "20px", gridColumn: "span 2", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Tax Contribution (GST)</p>
-            <span className="font-space" style={{ fontSize: 18, fontWeight: 900, color: "var(--primary)" }}>₹{stats.totalGst.toFixed(2)}</span>
-          </div>
-          <TrendingUp size={24} style={{ opacity: 0.2, color: "var(--primary)" }} />
-        </div>
-      </div>
 
-      <button
-        onClick={exportToExcel}
-        className="shimmer-btn"
-        style={{
-          width: "100%", height: 72, borderRadius: 24, border: "none", color: "#fff",
-          fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
-          boxShadow: "0 20px 40px rgba(var(--primary-rgb), 0.3)"
-        }}
-      >
-        <FileSpreadsheet size={24} />
-        Export to Excel
-      </button>
+        <div style={{ padding: "0 16px" }}>
+            <button onClick={exportToExcel} className="app-btn-primary" style={{ background: "var(--app-surface)", color: "var(--app-primary)", border: "1px solid var(--app-border)" }}>
+                <FileSpreadsheet size={20} />
+                EXPORT FINANCIAL DATA
+            </button>
+        </div>
+      </section>
 
-      <div style={{ marginTop: 40, borderTop: "1.5px solid var(--border)", paddingTop: 32 }}>
-          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 20 }}>Period Sales Feed</p>
-          {filteredSales.map(s => (
-              <div key={s.id} className="glass" style={{ padding: 20, marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                      <p style={{ fontWeight: 800, fontSize: 14 }}>Bill #{s.id}</p>
-                      <p style={{ fontSize: 9, color: "var(--muted)", fontWeight: 700 }}>{new Date(s.timestamp).toLocaleDateString()} · {s.items.length} Items</p>
+      {/* Itemized Feed */}
+      <section style={{ marginTop: 32 }}>
+          <p style={{ margin: "0 24px 16px", fontSize: 10, fontWeight: 800, color: "var(--app-primary)", letterSpacing: "0.15em" }}>PERIOD TRANSACTION LOG</p>
+          <div style={{ padding: "0 8px" }}>
+              {filteredSales.map(s => (
+                  <div key={s.id} className="app-card" style={{ padding: "16px 20px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--app-surface-raised)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--app-primary)" }}>
+                              <Receipt size={18} />
+                          </div>
+                          <div>
+                              <p style={{ fontSize: 14, fontWeight: 700 }}>#{s.id?.toString().slice(-4)}</p>
+                              <p style={{ fontSize: 11, color: "var(--app-fg-muted)", fontWeight: 500 }}>{new Date(s.timestamp).toLocaleDateString()}</p>
+                          </div>
+                      </div>
+                      <p className="font-space" style={{ fontSize: 18, fontWeight: 800 }}>₹{s.total.toFixed(0)}</p>
                   </div>
-                  <span className="font-space" style={{ fontSize: 18, fontWeight: 900, color: "var(--primary)" }}>₹{s.total.toLocaleString()}</span>
-              </div>
-          ))}
-          {filteredSales.length === 0 && (
-              <div style={{ padding: 60, textAlign: "center", opacity: 0.2 }}>
-                  <Calendar size={40} style={{ margin: "0 auto 12px" }} />
-                  <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>No sales found for this period</p>
-              </div>
-          )}
-      </div>
+              ))}
+              {filteredSales.length === 0 && (
+                  <div style={{ padding: 60, textAlign: "center", opacity: 0.2 }}>
+                      <Activity size={40} style={{ margin: "0 auto 16px" }} />
+                      <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>No data for this selection</p>
+                  </div>
+              )}
+          </div>
+      </section>
     </div>
   );
 }
