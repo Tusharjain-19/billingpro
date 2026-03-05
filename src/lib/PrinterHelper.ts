@@ -1,4 +1,4 @@
-import EscPosEncoder from 'esc-pos-encoder';
+import ReceiptPrinterEncoder from '@point-of-sale/receipt-printer-encoder';
 
 export class PrinterHelper {
   private static device: BluetoothDevice | null = null;
@@ -29,15 +29,13 @@ export class PrinterHelper {
       if (!connected) return;
     }
 
-    const encoder = new EscPosEncoder();
+    const encoder = new ReceiptPrinterEncoder();
     let result = encoder
       .initialize()
       .align('center')
       .size('normal')
-      .text(shopName.toUpperCase())
-      .newline()
-      .text('--------------------------------')
-      .newline()
+      .line(shopName.toUpperCase())
+      .line('--------------------------------')
       .align('left');
 
     items.forEach(item => {
@@ -45,21 +43,17 @@ export class PrinterHelper {
         .text(`${item.name.substring(0, 20).padEnd(20)} x${item.quantity}`)
         .newline()
         .align('right')
-        .text(`Rs. ${item.price * item.quantity}`)
-        .newline()
+        .line(`Rs. ${item.price * item.quantity}`)
         .align('left');
     });
 
     result = result
-      .text('--------------------------------')
-      .newline()
+      .line('--------------------------------')
       .align('right')
-      .text(`TOTAL: Rs. ${total}`)
-      .newline()
+      .line(`TOTAL: Rs. ${total}`)
       .newline()
       .align('center')
-      .text('THANK YOU FOR VISITING')
-      .newline()
+      .line('THANK YOU FOR VISITING')
       .cut()
       .encode();
 
