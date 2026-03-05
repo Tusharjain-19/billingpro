@@ -100,15 +100,15 @@ export default function InventoryPage() {
             <Search size={18} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--app-fg-muted)" }} />
             <input 
               className="app-input" 
-              placeholder="Search or Scan Barcode..." 
-              style={{ paddingLeft: 48 }}
+              placeholder="Search / Scan..." 
+              style={{ paddingLeft: 48, paddingRight: 56 }}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
             <motion.button 
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsScanning(true)}
-              style={{ position: "absolute", right: 8, top: 8, height: 40, width: 40, borderRadius: 12, border: "none", background: "var(--app-bg)", color: "var(--app-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ position: "absolute", right: 6, top: 6, height: 40, width: 40, borderRadius: 12, border: "none", background: "var(--app-surface-raised)", color: "var(--app-primary)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}
             >
                 <Camera size={20} />
             </motion.button>
@@ -164,13 +164,13 @@ export default function InventoryPage() {
         {isAdding && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
+            style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}
             onClick={closeDrawer}
           >
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              style={{ position: "absolute", bottom: 0, width: "100%", maxWidth: 430, left: "50%", x: "-50%", background: "var(--app-bg)", borderRadius: "32px 32px 0 0", padding: "40px 20px 60px", borderTop: "1px solid var(--app-border)", maxHeight: "90vh", overflowY: "auto" }}
+              style={{ position: "absolute", bottom: 0, width: "100%", maxWidth: 430, left: "50%", x: "-50%", background: "var(--app-bg)", borderRadius: "36px 36px 0 0", padding: "60px 20px 80px", borderTop: "1px solid var(--app-border)", maxHeight: "85vh", overflowY: "auto" }}
               onClick={e => e.stopPropagation()}
             >
                 <div style={{ width: 40, height: 4, background: "var(--app-border)", borderRadius: 10, margin: "0 auto 20px" }} />
