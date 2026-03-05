@@ -2,7 +2,7 @@
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, Sale } from '@/lib/db';
-import { Download, Calendar, ArrowLeft, BarChart3, TrendingUp, Filter, FileSpreadsheet, ChevronRight, IndianRupee, PieChart, Activity } from 'lucide-react';
+import { Download, Calendar, ArrowLeft, BarChart3, TrendingUp, Filter, FileSpreadsheet, ChevronRight, IndianRupee, PieChart, Activity, Receipt } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
