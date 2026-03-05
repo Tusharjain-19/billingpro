@@ -14,20 +14,20 @@ function ThemeToggle() {
       onClick={toggleTheme}
       style={{
         position: "absolute",
-        top: "24px",
-        right: "24px",
+        top: "20px",
+        right: "20px",
         zIndex: 1000,
-        width: "48px",
-        height: "48px",
-        borderRadius: "16px",
+        width: "44px",
+        height: "44px",
+        borderRadius: "14px",
         background: "var(--surface-raised)",
-        border: "1px solid var(--border)",
+        border: "1.5px solid var(--border)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
         color: "var(--primary)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.1)"
+        boxShadow: "0 10px 20px rgba(0,0,0,0.15)"
       }}
     >
       <AnimatePresence mode="wait">
@@ -47,9 +47,9 @@ function ThemeToggle() {
 
 export function ClientShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="app-shell">
+    <main className="app-shell" style={{ position: "relative" }}>
       <ThemeToggle />
-      <div style={{ flex: 1, paddingBottom: "130px", overflowY: "auto" }}>
+      <div style={{ flex: 1, paddingBottom: "140px", overflowY: "auto", position: "relative" }}>
         {children}
       </div>
       <nav className="nav-capsule">

@@ -38,7 +38,12 @@ export function BarcodeScanner({ onScan, onClose }: ScannerProps) {
   return (
     <div style={{
       position: "fixed",
-      inset: 0,
+      top: 0,
+      bottom: 0,
+      left: "50%",
+      width: "100%",
+      maxWidth: 440,
+      transform: "translateX(-50%)",
       zIndex: 2000,
       background: "#000",
       display: "flex",

@@ -1,23 +1,24 @@
 'use client';
 
 import { motion } from "framer-motion";
-import { Plus, ShoppingBag, Users, ArrowUpRight, Target, Zap, ShieldCheck, PieChart, Activity, ShoppingCart, LayoutGrid } from "lucide-react";
+import { Plus, ShoppingBag, Users, ArrowUpRight, Target, Zap, ShieldCheck, PieChart, Activity, ShoppingCart, LayoutGrid, IndianRupee, Store, Package, History, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { useMemo, useState, useEffect } from "react";
 
 const S = {
-  page:    { padding: "40px 24px", paddingBottom: "140px" } as React.CSSProperties,
-  header:  { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" } as React.CSSProperties,
-  avatar:  { width: 48, height: 48, borderRadius: 16, background: "var(--surface-raised)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" } as React.CSSProperties,
-  section: { marginBottom: 40 } as React.CSSProperties,
-  label:   { fontSize: 10, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: "0.4em", color: "var(--primary)", marginBottom: 20, paddingLeft: 4, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
-  card:    { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px", marginBottom: 16, cursor: "pointer" } as React.CSSProperties,
+  page:    { padding: "40px var(--page-pad)", paddingBottom: "140px" } as React.CSSProperties,
+  header:  { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" } as React.CSSProperties,
+  avatar:  { width: 44, height: 44, borderRadius: 14, background: "var(--surface-raised)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" } as React.CSSProperties,
+  section: { marginBottom: 32 } as React.CSSProperties,
+  label:   { fontSize: 10, fontWeight: 900, textTransform: "uppercase" as const, letterSpacing: "0.2em", color: "var(--primary)", marginBottom: 16, paddingLeft: 4, display: "flex", alignItems: "center", gap: 8 } as React.CSSProperties,
+  card:    { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", marginBottom: 16, cursor: "pointer" } as React.CSSProperties,
 };
 
 export default function Home() {
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const settings = useLiveQuery(() => db.settings.toCollection().first());
 
   // Real Data Subscriptions
   const sales = useLiveQuery(() => db.sales.orderBy('timestamp').reverse().toArray());
@@ -52,20 +53,20 @@ export default function Home() {
   if (!permissionGranted) {
     return (
       <div style={{ height: "100vh", padding: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass" style={{ padding: 48, borderRadius: 48, maxWidth: 380, border: "2px solid var(--border)" }}>
-          <div style={{ width: 80, height: 80, borderRadius: 30, background: "rgba(var(--primary-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", color: "var(--primary)" }}>
-            <ShieldCheck size={40} strokeWidth={2.5} />
+        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass" style={{ padding: 40, borderRadius: 40, maxWidth: 360, border: "2px solid var(--border)" }}>
+          <div style={{ width: 64, height: 64, borderRadius: 20, background: "rgba(var(--primary-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "var(--primary)" }}>
+            <ShieldCheck size={32} strokeWidth={2.5} />
           </div>
-          <h2 className="font-space" style={{ fontSize: 28, fontWeight: 900, marginBottom: 12, letterSpacing: -0.5 }}>Security Protocol</h2>
-          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 40, fontWeight: 500 }}>
-            Establish a secure link between your hardware and the local vault to enable real-time asset tracking.
+          <h2 className="font-space" style={{ fontSize: 24, fontWeight: 900, marginBottom: 8 }}>Indian Store Entry</h2>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 32, fontWeight: 500 }}>
+            Configure your local vault and printer to enable secure Indian GST billing.
           </p>
           <button 
             onClick={initializeTerminal}
             className="shimmer-btn"
-            style={{ width: "100%", height: 72, borderRadius: 24, color: "#fff", border: "none", fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.25em", cursor: "pointer", boxShadow: "0 15px 35px rgba(var(--primary-rgb), 0.3)" }}
+            style={{ width: "100%", height: 68, borderRadius: 20, color: "#fff", border: "none", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", cursor: "pointer" }}
           >
-            Authorize System
+            Start Billing Engine
           </button>
         </motion.div>
       </div>
@@ -74,129 +75,134 @@ export default function Home() {
 
   return (
     <div style={S.page}>
-      {/* Dynamic Header */}
       <header style={S.header}>
         <div>
-          <h1 className="font-space" style={{ fontSize: 28, fontWeight: 900, letterSpacing: -1 }}>Terminal-01</h1>
-          <div style={{ fontSize: 10, color: "var(--primary)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.3em", marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+          <h1 className="font-space" style={{ fontSize: 28, fontWeight: 900, letterSpacing: -1 }}>{settings?.storeName || 'Main Counter'}</h1>
+          <div style={{ fontSize: 10, color: "#10b981", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 10px #10b981" }} /> System Nominal
           </div>
         </div>
         <div style={S.avatar}>
-          <LayoutGrid size={22} fill="currentColor" opacity={0.2} />
+          <Store size={20} />
         </div>
       </header>
 
-      {/* Main Revenue Engine */}
+      {/* Gross Revenue Section */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", damping: 20 }}
         style={{
-          position: "relative", height: 240, borderRadius: 40, overflow: "hidden", padding: "40px", marginBottom: 40,
-          background: "var(--primary)",
-          backgroundImage: "linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)",
+          position: "relative", minHeight: 180, borderRadius: 32, overflow: "hidden", padding: "28px", marginBottom: 32,
+          background: "linear-gradient(135deg, #1e1b4b 0%, var(--primary) 100%)",
           display: "flex", flexDirection: "column", justifyContent: "space-between",
-          boxShadow: "0 25px 60px rgba(var(--primary-rgb), 0.35)"
+          boxShadow: "0 20px 50px rgba(var(--primary-rgb), 0.3)"
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.3em", marginBottom: 12 }}>Gross Intake Today</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 8 }}>Daily Sale Collection</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span className="font-space" style={{ fontSize: 44, fontWeight: 900, color: "#fff", letterSpacing: -2.5 }}>₹{todayRevenue.toLocaleString()}</span>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 20 }}>.00</span>
+              <span className="font-space" style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: -1.5 }}>₹{todayRevenue.toLocaleString()}</span>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 800, fontSize: 16 }}>.00</span>
             </div>
           </div>
-          <div style={{ background: "rgba(16,185,129,0.2)", border: "1.5px solid rgba(16,185,129,0.3)", color: "#10b981", padding: "6px 14px", borderRadius: 100, fontSize: 11, fontWeight: 900, display: "flex", alignItems: "center", gap: 6 }}>
-            <ArrowUpRight size={14} strokeWidth={3} /> {progress.toFixed(1)}%
+          <div style={{ background: "rgba(255,184,0,0.2)", border: "1.5px solid rgba(255,184,0,0.3)", color: "#ffb800", padding: "6px 14px", borderRadius: 100, fontSize: 10, fontWeight: 900, display: "flex", alignItems: "center", gap: 6 }}>
+            <ArrowUpRight size={12} strokeWidth={3} /> {progress.toFixed(1)}%
           </div>
         </div>
 
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em" }}>Quota: ₹{target.toLocaleString()}</span>
-            <span style={{ color: "#fff", fontWeight: 900, fontSize: 13 }}>{progress.toFixed(0)}%</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 9, fontWeight: 900, textTransform: "uppercase" }}>Goal: ₹{target.toLocaleString()}</span>
+            <span style={{ color: "#fff", fontWeight: 900, fontSize: 12 }}>{progress.toFixed(0)}%</span>
           </div>
-          <div style={{ height: 8, background: "rgba(0,0,0,0.15)", borderRadius: 100, overflow: "hidden" }}>
+          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, overflow: "hidden" }}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ delay: 0.5, duration: 1.5, ease: "circOut" }}
-              style={{ height: "100%", background: "#fff", borderRadius: 100, boxShadow: "0 0 15px rgba(255,255,255,0.4)" }}
+              transition={{ delay: 0.5, duration: 1.5 }}
+              style={{ height: "100%", background: "#ffb800", borderRadius: 100, boxShadow: "0 0 15px rgba(255,184,0,0.4)" }}
             />
           </div>
         </div>
       </motion.div>
 
-      {/* Snapshot Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 40 }}>
-        <div className="glass" style={{ padding: "24px", position: "relative" }}>
-          <PieChart size={18} style={{ color: "var(--primary)", position: "absolute", right: 20, top: 20, opacity: 0.4 }} />
-          <p style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 10 }}>Assets</p>
-          <p className="font-space" style={{ fontSize: 32, fontWeight: 900 }}>{productCount || 0}</p>
+      {/* Simplified Snapshots */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
+        <div className="glass" style={{ padding: "20px", position: "relative" }}>
+          <Package size={16} style={{ color: "var(--primary)", position: "absolute", right: 16, top: 16 }} />
+          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Total Items</p>
+          <p className="font-space" style={{ fontSize: 26, fontWeight: 900 }}>{productCount || 0}</p>
         </div>
-        <div className="glass" style={{ padding: "24px", position: "relative" }}>
-          <Activity size={18} style={{ color: "var(--accent)", position: "absolute", right: 20, top: 20, opacity: 0.4 }} />
-          <p style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 10 }}>Logs</p>
-          <p className="font-space" style={{ fontSize: 32, fontWeight: 900 }}>{sales?.length || 0}</p>
+        <div className="glass" style={{ padding: "20px", position: "relative" }}>
+          <History size={16} style={{ color: "#ffb800", position: "absolute", right: 16, top: 16 }} />
+          <p style={{ fontSize: 9, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Total Bills</p>
+          <p className="font-space" style={{ fontSize: 26, fontWeight: 900 }}>{sales?.length || 0}</p>
         </div>
       </div>
 
-      {/* Primary Navigation Hub */}
+      {/* Indian Hub Tools */}
       <div style={S.section}>
         <p style={S.label}>
-          <Zap size={12} fill="currentColor" /> Operations Hub
+          <Zap size={10} fill="currentColor" /> MARKET TOOLS
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
           <Link href="/billing" style={{ textDecoration: "none", color: "inherit" }}>
-            <motion.div whileHover={{ y: -5 }} className="glass" style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 60, height: 60, borderRadius: 20, background: "rgba(var(--primary-rgb), 0.1)", border: "1.5px solid rgba(var(--primary-rgb), 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <ShoppingCart size={28} />
+            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(var(--primary-rgb), 0.1)", border: "1.5px solid rgba(var(--primary-rgb), 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                <IndianRupee size={20} />
               </div>
-              <span style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.15em" }}>Terminal</span>
+              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Bill</span>
             </motion.div>
           </Link>
           <Link href="/inventory" style={{ textDecoration: "none", color: "inherit" }}>
-            <motion.div whileHover={{ y: -5 }} className="glass" style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 60, height: 60, borderRadius: 20, background: "rgba(var(--accent-rgb), 0.1)", border: "1.5px solid rgba(var(--accent-rgb), 0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)" }}>
-                <ShoppingBag size={28} />
+            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,184,0,0.1)", border: "1.5px solid rgba(255,184,0,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffb800" }}>
+                <Package size={20} />
               </div>
-              <span style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.15em" }}>Registry</span>
+              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Stock</span>
+            </motion.div>
+          </Link>
+          <Link href="/reports" style={{ textDecoration: "none", color: "inherit" }}>
+            <motion.div whileHover={{ y: -4 }} className="glass" style={{ padding: "24px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(16,185,129,0.1)", border: "1.5px solid rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10b981" }}>
+                <BarChart3 size={20} />
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>Reports</span>
             </motion.div>
           </Link>
         </div>
       </div>
 
-      {/* Live Transaction Feed */}
+      {/* Sale History List */}
       <div style={S.section}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20, padding: "0 4px" }}>
-          <p style={{ ...S.label, margin: 0 }}>System Activity</p>
-          <span style={{ fontSize: 9, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Recent First</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, padding: "0 4px" }}>
+          <p style={S.label}>RECENT BILLS</p>
+          <span style={{ fontSize: 8, fontWeight: 900, color: "var(--muted)", textTransform: "uppercase" }}>LATEST ENTRIES</span>
         </div>
-        {sales && sales.slice(0, 5).map((s, i) => (
-          <motion.div key={s.id} whileHover={{ x: 5 }} className="glass" style={{ ...S.card, background: "var(--glass-bg)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "var(--bg)", border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, color: "var(--muted)" }}>
-                {i + 1}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {sales && sales.slice(0, 5).map((s, i) => (
+            <motion.div key={s.id} whileHover={{ x: 4 }} className="glass" style={{ ...S.card, marginBottom: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--input-bg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900 }}>
+                        {i + 1}
+                    </div>
+                    <div>
+                        <p style={{ fontWeight: 800, fontSize: 15 }}>Bill Settle</p>
+                        <p style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700 }}>
+                            {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {s.items.length} Items
+                        </p>
+                    </div>
+                </div>
+                <p className="font-space" style={{ fontWeight: 900, fontSize: 17, color: "var(--primary)" }}>₹{s.total.toLocaleString()}</p>
+            </motion.div>
+            ))}
+            {(!sales || sales.length === 0) && (
+              <div style={{ padding: 40, textAlign: "center", border: "2px dashed var(--border)", borderRadius: 28, opacity: 0.2 }}>
+                <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase" }}>No Sale Today</p>
               </div>
-              <div>
-                <p style={{ fontWeight: 800, fontSize: 16, marginBottom: 2 }}>Settlement</p>
-                <p style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, letterSpacing: "0.02em" }}>
-                  {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {s.items.length} Assets
-                </p>
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p className="font-space" style={{ fontWeight: 900, fontSize: 18, color: "var(--primary)" }}>₹{s.total.toLocaleString()}</p>
-            </div>
-          </motion.div>
-        ))}
-        {(!sales || sales.length === 0) && (
-          <div style={{ padding: 60, textAlign: "center", opacity: 0.2 }}>
-            <p style={{ fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.3em" }}>No Activity Logged</p>
-          </div>
-        )}
+            )}
+        </div>
       </div>
     </div>
   );
