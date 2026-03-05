@@ -170,7 +170,7 @@ export default function InventoryPage() {
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              style={{ position: "absolute", bottom: 0, width: "100%", maxWidth: 430, left: "50%", x: "-50%", background: "var(--app-bg)", borderRadius: "32px 32px 0 0", padding: "24px 20px 48px", borderTop: "1px solid var(--app-border)" }}
+              style={{ position: "absolute", bottom: 0, width: "100%", maxWidth: 430, left: "50%", x: "-50%", background: "var(--app-bg)", borderRadius: "32px 32px 0 0", padding: "40px 20px 60px", borderTop: "1px solid var(--app-border)", maxHeight: "90vh", overflowY: "auto" }}
               onClick={e => e.stopPropagation()}
             >
                 <div style={{ width: 40, height: 4, background: "var(--app-border)", borderRadius: 10, margin: "0 auto 20px" }} />
